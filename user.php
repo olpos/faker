@@ -3,8 +3,8 @@ require 'vendor/autoload.php';
 
 use Faker\Factory;
 
-// Create Faker instance
-$faker = Factory::create();
+// Create Faker instance with Philippines locale
+$faker = Factory::create('en_PH');
 
 // Function to generate secure password
 function generateSecurePassword($length = 10) {
@@ -16,22 +16,26 @@ function generateSecurePassword($length = 10) {
     return $password;
 }
 
-// Generate 10 user accounts
+// Generate 5 user accounts
 $users = [];
-for ($i = 0; $i < 10; $i++) {
-    // Generate email and derive username from it
+for ($i = 0; $i < 5; $i++) {
     $email = $faker->email();
     $username = strtolower(explode('@', $email)[0]);
     
-    // Generate random password and hash it
     $rawPassword = generateSecurePassword(12);
     $hashedPassword = hash('sha256', $rawPassword);
     
     $users[] = [
         'user_id' => $faker->uuid(),
         'full_name' => $faker->name(),
+        'birthdate' => $faker->date('Y-m-d', '-18 years'),
+        'phone' => '+63 ' . substr($faker->phoneNumber, 1), // Convert 09XX to +63 9XX format
         'email' => $email,
         'username' => $username,
+        'address' => $faker->streetAddress . ', ' . 
+                    $faker->city . ', ' . 
+                    $faker->province,
+        'job_title' => $faker->jobTitle,
         'password' => [
             'raw' => $rawPassword,
             'hashed' => $hashedPassword
@@ -46,16 +50,17 @@ for ($i = 0; $i < 10; $i++) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Accounts Database</title>
+    <title>Filipino User Profiles</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         .password-cell { max-width: 200px; overflow: hidden; text-overflow: ellipsis; }
         .uuid-cell { max-width: 150px; overflow: hidden; text-overflow: ellipsis; }
+        .address-cell { max-width: 300px; }
     </style>
 </head>
 <body>
     <div class="container-fluid my-5">
-        <h1 class="text-center mb-4">Generated User Accounts</h1>
+        <h1 class="text-center mb-4">Generated Filipino User Profiles</h1>
         
         <div class="table-responsive">
             <table class="table table-hover table-striped table-sm">
@@ -63,10 +68,11 @@ for ($i = 0; $i < 10; $i++) {
                     <tr>
                         <th>UUID</th>
                         <th>Full Name</th>
+                        <th>Birthdate</th>
+                        <th>Phone</th>
                         <th>Email</th>
-                        <th>Username</th>
-                        <th>Raw Password</th>
-                        <th>Hashed Password (SHA-256)</th>
+                        <th>Address</th>
+                        <th>Job Title</th>
                         <th>Created At</th>
                     </tr>
                 </thead>
@@ -75,10 +81,11 @@ for ($i = 0; $i < 10; $i++) {
                     <tr>
                         <td class="uuid-cell"><code><?= htmlspecialchars($user['user_id']) ?></code></td>
                         <td><?= htmlspecialchars($user['full_name']) ?></td>
+                        <td><?= htmlspecialchars($user['birthdate']) ?></td>
+                        <td><code><?= htmlspecialchars($user['phone']) ?></code></td>
                         <td><?= htmlspecialchars($user['email']) ?></td>
-                        <td><code><?= htmlspecialchars($user['username']) ?></code></td>
-                        <td><code><?= htmlspecialchars($user['password']['raw']) ?></code></td>
-                        <td class="password-cell"><code><?= htmlspecialchars($user['password']['hashed']) ?></code></td>
+                        <td class="address-cell"><?= htmlspecialchars($user['address']) ?></td>
+                        <td><?= htmlspecialchars($user['job_title']) ?></td>
                         <td><?= htmlspecialchars($user['created_at']) ?></td>
                     </tr>
                     <?php endforeach; ?>
@@ -87,8 +94,7 @@ for ($i = 0; $i < 10; $i++) {
         </div>
         
         <div class="text-center mt-4">
-            <p class="text-muted"><small>Note: Raw passwords are shown for demonstration purposes only. In a real application, only hashed passwords should be stored.</small></p>
-            <a href="<?= $_SERVER['PHP_SELF'] ?>" class="btn btn-primary">Generate New Users</a>
+            <a href="<?= $_SERVER['PHP_SELF'] ?>" class="btn btn-primary">Generate New Profiles</a>
         </div>
     </div>
 
